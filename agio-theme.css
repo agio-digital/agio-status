@@ -1,0 +1,50 @@
+@font-face {
+  font-family: Montserrat;
+  src: url("/Montserrat-VariableFont_wght.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+:root {
+  --agio-blue: #193f66;
+  --agio-turquoise: #36b5d5;
+  --body-background-color: #f4f8fb;
+  --body-text-color: #193f66;
+  --card-background-color: #ffffff;
+  --nav-background-color: #ffffff;
+  --nav-border-bottom-color: #dce5ee;
+  --nav-current-border-bottom-color: #193f66;
+  --card-border-color: #dce5ee;
+  --down-border-left-color: #b42318;
+  --down-background-color: #fff1f0;
+  --degraded-border-left-color: #9a6700;
+  --up-border-left-color: #13795b;
+  --tag-color: #ffffff;
+  --tag-up-background-color: #13795b;
+  --tag-down-background-color: #b42318;
+  --tag-degraded-background-color: #9a6700;
+  --change-background-color: #fff4d6;
+  --error-button-border-color: #193f66;
+  --error-button-background-color: #193f66;
+  --error-button-color: #ffffff;
+  --submit-button-border-color: #193f66;
+  --submit-button-background-color: #193f66;
+  --submit-button-color: #ffffff;
+  --graph-opacity: 1;
+  --graph-filter: none;
+}
+body, button, input, select, textarea {
+  font-family: Montserrat, system-ui, sans-serif;
+}
+body { line-height: 1.6; }
+h1, h2, h3 { line-height: 1.25; letter-spacing: -.025em; }
+nav img { width: auto; height: 40px; object-fit: contain; }
+button, input, select { border-radius: 9999px; }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible {
+  outline: 3px solid var(--agio-turquoise);
+  outline-offset: 3px;
+}
+@media (max-width: 480px) {
+  nav img { height: 30px; }
+  h1 { font-size: 1.8rem; }
+}
