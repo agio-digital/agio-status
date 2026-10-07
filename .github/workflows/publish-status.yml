@@ -17,6 +17,7 @@ on:
 permissions:
   contents: write
   issues: read
+  actions: read
 concurrency:
   group: publish-status-snapshot
   cancel-in-progress: false
