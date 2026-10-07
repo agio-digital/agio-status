@@ -96,6 +96,7 @@ test('Upptime renders the stale notice and original branded navigation without a
     hideNavTitle: true, name: 'Agio Status', logoUrl: '/agio-logo-blue.png', themeUrl: '/agio-theme.css',
     navbar: [{ title: 'Status', href: '/' }, { title: 'Docs', href: 'https://docs.agiodigital.com/' },
       { title: 'Contact', href: 'mailto:devs@agiodigital.com' }],
+    customFootHtml: '<section id="support-title">Need help? <a href="mailto:devs@agiodigital.com">email devs@agiodigital.com</a></section>',
   } };
   const sources = {};
   for (const path of ['routes/_layout.svelte', 'components/Nav.svelte']) sources[path] = await readFile(`${packageRoot}/src/${path}`, 'utf8');
@@ -118,6 +119,8 @@ test('Upptime renders the stale notice and original branded navigation without a
   assert.match(html, /agio-logo-blue.png/);
   assert.match(html, /mailto:devs@agiodigital.com/);
   assert.doesNotMatch(html, /<div>Agio Status<\/div>/);
+  assert.match(html, /support-title/);
+  assert.match(html, /Need help\? <a href="mailto:devs@agiodigital.com"/);
 });
 
 test('legacy rate-limit link returns clients to service status', async () => {
