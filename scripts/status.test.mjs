@@ -113,8 +113,15 @@ test('Upptime renders the stale notice and original branded navigation without a
   }
   const html = component('routes/_layout.svelte').render({}).html;
   assert.match(html, /Status updates delayed/);
-  assert.match(html, /Current availability is unknown/);
+  assert.match(html, /The latest checks are delayed/);
+  assert.doesNotMatch(html, /Selected public routes|GitHub token|published status data/);
   assert.match(html, /agio-logo-blue.png/);
   assert.match(html, /mailto:devs@agiodigital.com/);
   assert.doesNotMatch(html, /<div>Agio Status<\/div>/);
+});
+
+test('legacy rate-limit link returns clients to service status', async () => {
+  const source = await readFile(`${packageRoot}/src/routes/rate-limit-exceeded.svelte`, 'utf8');
+  assert.match(source, /onMount\(\(\) => goto\(config.path \|\| "\/", \{ replaceState: true \}\)\)/);
+  assert.doesNotMatch(source, /GitHub token|published status data|Status information/);
 });
