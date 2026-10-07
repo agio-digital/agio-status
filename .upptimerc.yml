@@ -36,19 +36,20 @@ sites:
 status-website:
   cname: status.agiodigital.com
   name: Agio Status
+  hideNavTitle: true
   logoUrl: https://status.agiodigital.com/agio-logo-blue.png
   themeUrl: https://status.agiodigital.com/agio-theme.css
   favicon: https://status.agiodigital.com/agio-favicon.svg
   faviconSvg: https://status.agiodigital.com/agio-favicon.svg
-  introTitle: "**Agio service status**"
-  introMessage: "Current availability and incident updates for Agio services. Checks run outside Agio's infrastructure. Scheduled checks may be delayed; this page does not validate every application operation."
+  introTitle: ""
+  introMessage: ""
   navbar:
     - title: Status
       href: /
-    - title: Incident History
+    - title: Incidents
       href: https://github.com/agio-digital/agio-status/issues
-    - title: Developer docs
+    - title: Docs
       href: https://docs.agiodigital.com/
-    - title: Contact Agio
-      href: mailto:info@agiodigital.com
-  customFootHtml: '<section aria-labelledby="support-title" style="max-width:960px;margin:2rem auto;padding:0 1rem"><h2 id="support-title">Need help?</h2><p>For an app or integration issue, <a href="mailto:info@agiodigital.com">email info@agiodigital.com</a>. Include the affected app or API, production or sandbox, time and time zone, and a request ID if available. Never include passwords, access tokens, card details or recovery phrases.</p><p><a href="https://docs.agiodigital.com/">Developer documentation</a> · <a href="https://www.agiodigital.com/contact">Other ways to contact Agio</a></p></section>'
+    - title: Contact
+      href: mailto:devs@agiodigital.com
+  customFootHtml: '<section aria-labelledby="support-title" style="max-width:960px;margin:2rem auto;padding:0 1rem"><h2 id="support-title">Need help?</h2><p>For an app or integration issue, <a href="mailto:devs@agiodigital.com">email devs@agiodigital.com</a>. Include the affected app or API, production or sandbox, time and time zone, and a request ID if available. Never include passwords, access tokens, card details or recovery phrases.</p><p><a href="https://docs.agiodigital.com/">Developer documentation</a> · <a href="https://www.agiodigital.com/contact">Other ways to contact Agio</a></p></section>'
