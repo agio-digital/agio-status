@@ -38,6 +38,6 @@ status-website:
   introMessage: "Current availability and incident updates for Agio services. Checks run outside Agio's infrastructure. Scheduled checks may be delayed; this page does not validate every application operation."
   navbar:
     - title: Status
-      href: /
+      href: /agio-status/
     - title: Incident History
       href: https://github.com/agio-digital/agio-status/issues
