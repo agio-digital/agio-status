@@ -1,0 +1,384 @@
+diff --git a/rollup.config.js b/rollup.config.js
+--- a/rollup.config.js
++++ b/rollup.config.js
+@@ -64,6 +64,7 @@
+ 
+       !dev &&
+         terser({
++          numWorkers: 2,
+           module: true,
+         }),
+     ],
+@@ -107,7 +108,7 @@
+         "process.env.NODE_ENV": JSON.stringify(mode),
+       }),
+       commonjs(),
+-      !dev && terser(),
++      !dev && terser({ numWorkers: 2 }),
+     ],
+ 
+     preserveEntrySignatures: false,
+diff --git a/src/components/ActiveIncidents.svelte b/src/components/ActiveIncidents.svelte
+--- a/src/components/ActiveIncidents.svelte
++++ b/src/components/ActiveIncidents.svelte
+@@ -2,6 +2,7 @@
+   import Loading from "../components/Loading.svelte";
+   import { onMount } from "svelte";
+   import config from "../data/config.json";
++  import { fresh, data } from "../utils/snapshot";
+   import { cachedResponse, createOctokit, handleError } from "../utils/createOctokit";
+ 
+   let loading = true;
+@@ -39,7 +40,7 @@
+   });
+ </script>
+ 
+-{#if !incidents.length && !loading}
++{#if !incidents.length && !loading && $fresh && data.sites.every(site => site.status === "up")}
+   <article class="up">✅ &nbsp; {config.i18n.allSystemsOperational}</article>
+ {/if}
+ 
+diff --git a/src/components/Incident.svelte b/src/components/Incident.svelte
+--- a/src/components/Incident.svelte
++++ b/src/components/Incident.svelte
+@@ -1,13 +1,12 @@
+ <script>
+   import Loading from "../components/Loading.svelte";
+   import { onMount } from "svelte";
+-  import snarkdown from "snarkdown";
+   import config from "../data/config.json";
+   import { cachedResponse, createOctokit, handleError } from "../utils/createOctokit";
+ 
+   export let number;
+ 
+-  let md = snarkdown;
++  let md = body => body;
+   let loading = true;
+   let loadingIncident = true;
+ 
+diff --git a/src/components/LiveStatus.svelte b/src/components/LiveStatus.svelte
+--- a/src/components/LiveStatus.svelte
++++ b/src/components/LiveStatus.svelte
+@@ -2,6 +2,7 @@
+   import Loading from "../components/Loading.svelte";
+   import { onMount } from "svelte";
+   import config from "../data/config.json";
++  import { getSummary, fresh } from "../utils/snapshot";
+   import { createOctokit, handleError } from "../utils/createOctokit";
+ 
+   let loading = true;
+@@ -14,15 +15,14 @@
+   if (!apiBaseUrl) apiBaseUrl = "https://api.github.com";
+   if (!userContentBaseUrl) userContentBaseUrl = "https://raw.githubusercontent.com";
+ 
+-  const graphsBaseUrl = `${userContentBaseUrl}/${owner}/${repo}/master/graphs`;
++  const graphsBaseUrl = `${config.path}/graphs`;
+   let form = null;
+ 
+   let selected = "week";
+ 
+   onMount(async () => {
+     try {
+-      const res = await fetch(`${userContentBaseUrl}/${owner}/${repo}/master/history/summary.json`);
+-      sites = await res.json();
++      sites = await getSummary();
+     } catch (error) {
+       handleError(error);
+     }
+@@ -39,7 +39,7 @@
+ </script>
+ 
+ <div class="f changed" bind:this={form}>
+-  <h2>{config.i18n.liveStatus}</h2>
++  <h2>{$fresh ? config.i18n.liveStatus : "Last recorded status"}</h2>
+   <form class="f r">
+     <div>
+       <input
+@@ -99,7 +99,7 @@
+   {:else if sites.length}
+     {#each sites as site}
+       <article
+-        class={`${site.status} link graph`}
++        class={`${$fresh ? site.status : "degraded"} link graph`}
+         style="--background: url('{`${graphsBaseUrl}/${site.slug}/response-time${
+           selected === "day"
+             ? "-day"
+diff --git a/src/components/Summary.svelte b/src/components/Summary.svelte
+--- a/src/components/Summary.svelte
++++ b/src/components/Summary.svelte
+@@ -2,6 +2,7 @@
+   import Loading from "../components/Loading.svelte";
+   import { onMount } from "svelte";
+   import config from "../data/config.json";
++  import { getSummary, fresh } from "../utils/snapshot";
+   import { handleError } from "../utils/createOctokit";
+ 
+   export let slug;
+@@ -17,8 +18,7 @@
+ 
+   onMount(async () => {
+     try {
+-      const res = await fetch(`${userContentBaseUrl}/${owner}/${repo}/master/history/summary.json`);
+-      summary = (await res.json()).find((item) => item.slug === slug);
++      summary = (await getSummary()).find((item) => item.slug === slug);
+     } catch (error) {
+       handleError(error);
+     }
+@@ -38,8 +38,8 @@
+   {:else if summary}
+     <h1>
+       <a class="no-underline" href={summary.url.startsWith('$') ? '#' : summary.url}>{summary.name}</a>
+-      <span class={`tag ${summary.status}`}>
+-        {summary.status === 'up' ? config.i18n.up : config.i18n.down}
++      <span class={`tag ${$fresh ? summary.status : "degraded"}`}>
++        {!$fresh ? 'Last recorded: ' : ''}{summary.status === 'up' ? config.i18n.up : config.i18n.down}
+       </span>
+     </h1>
+     <dl>
+diff --git a/src/routes/_layout.svelte b/src/routes/_layout.svelte
+--- a/src/routes/_layout.svelte
++++ b/src/routes/_layout.svelte
+@@ -2,7 +2,14 @@
+   import Nav from "../components/Nav.svelte";
+   import config from "../data/config.json";
+   import snarkdown from "snarkdown";
++  import { onMount } from "svelte";
++  import { data, fresh, refreshFreshness } from "../utils/snapshot";
+   export let segment;
++  onMount(() => {
++    refreshFreshness();
++    const timer = setInterval(refreshFreshness, 30000);
++    return () => clearInterval(timer);
++  });
+ </script>
+ 
+ <svelte:head>
+@@ -86,8 +93,19 @@
+ <Nav {segment} />
+ 
+ <main class="container">
++  {#if !$fresh}
++    <article class="degraded" role="status">
++      <strong>Status updates delayed</strong>
++      <p>Current availability is unknown. The last recorded results follow.</p>
++    </article>
++  {/if}
++  <p style="font-size:0.85rem;opacity:0.75">Last checked {new Date(data.checkedAt).toLocaleString(config.i18n.locale)} · Selected public routes only</p>
+   <slot />
+ </main>
++
++{#if (config["status-website"] || {}).customFootHtml}
++  {@html config["status-website"].customFootHtml}
++{/if}
+ 
+ <footer>
+   <p>
+diff --git a/src/routes/rate-limit-exceeded.svelte b/src/routes/rate-limit-exceeded.svelte
+--- a/src/routes/rate-limit-exceeded.svelte
++++ b/src/routes/rate-limit-exceeded.svelte
+@@ -1,88 +1,7 @@
+ <script>
+-  import { onMount } from "svelte";
+-  import { goto } from "@sapper/app";
+   import config from "../data/config.json";
+-
+-  let token = "";
+-  let localStorageToken = false;
+-  const save = () => {
+-    if (typeof window !== "undefined" && "localStorage" in window)
+-      window.localStorage.setItem("personal-access-token", token);
+-    goto(config.path);
+-  };
+-  const remove = () => {
+-    token = "";
+-    localStorageToken = false;
+-    if (typeof window !== "undefined" && "localStorage" in window)
+-      window.localStorage.removeItem("personal-access-token");
+-  };
+-  onMount(() => {
+-    if (
+-      typeof window !== "undefined" &&
+-      "localStorage" in window &&
+-      localStorage.getItem("personal-access-token")
+-    )
+-      localStorageToken = true;
+-  });
+ </script>
+-
+-<svelte:head>
+-  <title>{config.i18n.rateLimitExceededTitle}</title>
+-</svelte:head>
+-
+-<h1>{config.i18n.rateLimitExceededTitle}</h1>
+-
+-<p class="lead">{config.i18n.rateLimitExceededIntro}</p>
+-
+-<h2>{config.i18n.rateLimitExceededWhatDoesErrorMean}</h2>
+-
+-<p>{config.i18n.rateLimitExceededErrorMeaning}</p>
+-
+-<h2>{config.i18n.rateLimitExceededErrorHowCanFix}</h2>
+-
+-<p>
+-  {config.i18n.rateLimitExceededErrorFix}
+-  <a
+-    href="https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token"
+-    target="_blank">{config.i18n.rateLimitExceededGeneratePAT}</a
+-  >
+-</p>
+-
+-{#if localStorageToken}
+-  <p>{config.i18n.rateLimitExceededHasSet}</p>
+-  <button on:click={remove}>{config.i18n.rateLimitExceededRemoveToken}</button>
+-{:else}
+-  <form on:submit|preventDefault={save}>
+-    <label>
+-      <span>{config.i18n.rateLimitExceededGitHubPAT}</span>
+-      <input
+-        type="text"
+-        bind:value={token}
+-        placeholder={config.i18n.rateLimitExceededCopyPastePAT}
+-      />
+-    </label>
+-    <button class="submit-button" type="submit">{config.i18n.rateLimitExceededSaveToken}</button>
+-  </form>
+-{/if}
+-
+-<style>
+-  p.lead {
+-    font-size: 110%;
+-  }
+-  label span {
+-    display: block;
+-    font-weight: bold;
+-    margin-bottom: 0.5rem;
+-  }
+-  input,
+-  button {
+-    font: inherit;
+-    padding: 0.5rem 1rem;
+-    border: 0.1rem solid rgba(0, 0, 0, 0.25);
+-    border-radius: 0.2rem;
+-  }
+-  input {
+-    width: 15rem;
+-    max-width: 100%;
+-  }
+-</style>
++<svelte:head><title>Agio Status</title></svelte:head>
++<h1>Status information</h1>
++<p>This page uses published status data. No GitHub token is needed.</p>
++<p><a href={config.path}>Return to service status</a></p>
+diff --git a/src/utils/createOctokit.js b/src/utils/createOctokit.js
+--- a/src/utils/createOctokit.js
++++ b/src/utils/createOctokit.js
+@@ -1,67 +1,29 @@
+-import { Octokit } from "@octokit/rest";
+ import config from "../data/config.json";
++import { data } from "./snapshot";
+ 
+-let { apiBaseUrl, userContentBaseUrl } = config["status-website"] || {};
+-if (!apiBaseUrl) apiBaseUrl = "https://api.github.com";
+-if (!userContentBaseUrl) userContentBaseUrl = "https://raw.githubusercontent.com";
+-
+-const userAgent = config.userAgent;
+-
+-export const createOctokit = () => {
+-  let token = "";
+-  if (
+-    typeof window !== "undefined" &&
+-    "localStorage" in window &&
+-    localStorage.getItem("personal-access-token")
+-  )
+-    token = localStorage.getItem("personal-access-token");
+-
+-  const baseUrl = apiBaseUrl;
+-  return new Octokit({
+-    baseUrl,
+-    userAgent,
+-    auth: token || undefined,
+-  });
++// Preserve Upptime's component interface; all reads use the published snapshot.
++export const createOctokit = () => ({
++  issues: {
++    listForRepo: async ({ state, labels = "" }) => ({ data: data.issues.filter(issue =>
++      (!state || state === "all" || issue.state === state) &&
++      labels.split(",").filter(Boolean).every(label => issue.labels.some(item => item.name === label))
++    ) }),
++    get: async ({ issue_number }) => {
++      const issue = data.issues.find(issue => issue.number === Number(issue_number));
++      if (!issue) throw new Error("Incident is not in the published snapshot");
++      return { data: { ...issue } };
++    },
++    listComments: async ({ issue_number }) => ({ data: [...(data.comments[issue_number] || [])] }),
++  },
++  repos: {
++    listCommits: async ({ path }) => {
++      const slug = /^history\/([a-z0-9-]+)\.yml$/.exec(path)?.[1];
++      if (!slug || !data.commits[slug]) throw new Error("History is not in the published snapshot");
++      return { data: [...data.commits[slug]] };
++    },
++  },
++});
++export const cachedResponse = async (_key, read) => read();
++export const handleError = () => {
++  if (typeof window !== "undefined") window.location.href = config.path + "/error";
+ };
+-
+-export const handleError = (error) => {
+-  if (error.message === "Bad credentials") {
+-    window.location.href = config.path + "/error";
+-  } else if ((error.message || "").indexOf("rate limit exceeded") > -1) {
+-    window.location.href = config.path + "/rate-limit-exceeded";
+-  } else {
+-    window.location.href = config.path + "/error";
+-    console.log(error.message);
+-  }
+-};
+-
+-/**
+- * Memoize a GitHub API response in local storage
+- * @param {string} key - Local storage cache key
+- * @param {Function} fn - Function that returns the result
+- */
+-export const cachedResponse = async (key, fn) => {
+-  try {
+-    if (typeof window !== "undefined") {
+-      if ("localStorage" in window && typeof document !== "undefined" && "domain" in document) {
+-        const data = localStorage.getItem(key);
+-        if (data) {
+-          const item = JSON.parse(data);
+-          if (
+-            new Date().getTime() - new Date(item.createdAt || "").getTime() >
+-            (document.domain === "localhost"
+-              ? config["status-website"].localhostCacheTime || 3600000
+-              : config["status-website"].productionCacheTime || 120000)
+-          ) {
+-            localStorage.removeItem(key);
+-          } else {
+-            return item.data;
+-          }
+-        }
+-      }
+-    }
+-  } catch (error) {}
+-  const i = await fn();
+-  localStorage.setItem(key, JSON.stringify({ data: i, createdAt: new Date() }));
+-  return i;
+-};
+diff --git a/src/utils/snapshot.js b/src/utils/snapshot.js
+new file mode 100644
+--- /dev/null
++++ b/src/utils/snapshot.js
+@@ -0,0 +1,11 @@
++import { writable } from "svelte/store";
++import data from "../data/snapshot.json";
++export { data };
++export const staleAfter = 20 * 60 * 1000;
++export const isFresh = (now = Date.now()) => {
++  const times = [data.generatedAt, data.checkedAt].map(Date.parse);
++  return data.monitorSucceeded && times.every(time => Number.isFinite(time) && time <= now + 60000 && now - time < staleAfter);
++};
++export const fresh = writable(isFresh());
++export const refreshFreshness = () => fresh.set(isFresh());
++export const getSummary = async () => data.sites;
