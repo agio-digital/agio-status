@@ -1,0 +1,44 @@
+name: Publish status snapshot
+on:
+  push:
+    branches: [main]
+    paths: ["scripts/build-status*", "assets/**", ".github/workflows/publish-status.yml"]
+  workflow_run:
+    workflows: ["Uptime CI", "Response Time CI", "Summary CI", "Graphs CI"]
+    types: [completed]
+    branches: [main]
+  issues:
+    types: [opened, edited, closed, reopened, labeled, unlabeled]
+  issue_comment:
+    types: [created, edited, deleted]
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+  issues: read
+concurrency:
+  group: publish-status-snapshot
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: main
+          persist-credentials: false
+      - run: node --test scripts/build-status.test.mjs
+      - name: Build public snapshots
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/build-status.mjs
+      - name: Publish to GitHub Pages
+        uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.1.0
+        with:
+          personal_token: ${{ secrets.GH_PAT }}
+          publish_dir: dist
+          keep_files: false
+          user_name: Upptime Bot
+          user_email: 73812536+upptime-bot@users.noreply.github.com
