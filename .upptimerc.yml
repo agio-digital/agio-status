@@ -34,10 +34,10 @@ sites:
 status-website:
   cname: status.agiodigital.com
   name: Agio Status
-  logoUrl: /agio-logo-blue.png
-  themeUrl: /agio-theme.css
-  favicon: /agio-favicon.svg
-  faviconSvg: /agio-favicon.svg
+  logoUrl: https://status.agiodigital.com/agio-logo-blue.png
+  themeUrl: https://status.agiodigital.com/agio-theme.css
+  favicon: https://status.agiodigital.com/agio-favicon.svg
+  faviconSvg: https://status.agiodigital.com/agio-favicon.svg
   introTitle: "**Agio service status**"
   introMessage: "Current availability and incident updates for Agio services. Checks run outside Agio's infrastructure. Scheduled checks may be delayed; this page does not validate every application operation."
   navbar:
