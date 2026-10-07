@@ -1559,7 +1559,7 @@ __metadata:
 
 "@upptime/status-page@patch:@upptime/status-page@npm:1.17.0#./.yarn/patches/upptime-status-page.patch::locator=agio-status%40workspace%3A.":
   version: 1.17.0
-  resolution: "@upptime/status-page@patch:@upptime/status-page@npm%3A1.17.0#./.yarn/patches/upptime-status-page.patch::version=1.17.0&hash=cd8d5e&locator=agio-status%40workspace%3A."
+  resolution: "@upptime/status-page@patch:@upptime/status-page@npm%3A1.17.0#./.yarn/patches/upptime-status-page.patch::version=1.17.0&hash=f0ea9a&locator=agio-status%40workspace%3A."
   dependencies:
     "@octokit/rest": "npm:^18.12.0"
     compression: "npm:^1.7.4"
@@ -1569,7 +1569,7 @@ __metadata:
     sirv: "npm:^1.0.5"
     snarkdown: "npm:^2.0.0"
     svelte-chartjs: "npm:^1.1.4"
-  checksum: 10c0/70f395a849c72df9a608750b2dd23ad0f4767e75438e23b4a3996a46d6318e3349befa2cd50536b3c60454c7ee76101bf6cd541946aa0d2ee2b1272af8eaaeee
+  checksum: 10c0/b77bf9e4e9920ffb56c7aa6831cdda91b6105aa6499d0bd22447934c20206b7dc143facfa424b7b8177bb6effc8e6a90924410fe41be68993d8b3088ea63bb6b
   languageName: node
   linkType: hard
 
