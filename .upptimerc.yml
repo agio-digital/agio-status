@@ -50,8 +50,6 @@ status-website:
       href: https://github.com/agio-digital/agio-status/issues
     - title: Docs
       href: https://docs.agiodigital.com/
-    - title: Contact
-      href: mailto:devs@agiodigital.com
   customFootHtml: '<section class="container" aria-labelledby="support-title" style="margin:2rem auto"><h2 id="support-title">Need help?</h2><p>For an app or integration issue, <a href="mailto:devs@agiodigital.com">email devs@agiodigital.com</a>. Include the affected app or API, production or sandbox, time and time zone, and a request ID if available. Never include passwords, access tokens, card details or recovery phrases.</p><p><a href="https://docs.agiodigital.com/">Developer documentation</a> · <a href="https://www.agiodigital.com/contact">Other ways to contact Agio</a></p></section>'
 
   # Cache repeat incident/history reads for one monitoring interval.
