@@ -32,12 +32,12 @@ sites:
     expectedStatusCodes: [200]
 
 status-website:
-  baseUrl: /agio-status
+  cname: status.agiodigital.com
   name: Agio Status
   introTitle: "**Agio service status**"
   introMessage: "Current availability and incident updates for Agio services. Checks run outside Agio's infrastructure. Scheduled checks may be delayed; this page does not validate every application operation."
   navbar:
     - title: Status
-      href: /agio-status/
+      href: /
     - title: Incident History
       href: https://github.com/agio-digital/agio-status/issues
