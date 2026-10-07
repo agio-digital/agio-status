@@ -1,31 +1,43 @@
-# Change these first
-owner: upptime # Your GitHub organization or username, where this repository lives
-repo: upptime # The name of this repository
+owner: agio-digital
+repo: agio-status
+user-agent: agio-status
+secrets: []
+assignees:
+  - cwdx
 
 sites:
-  - name: Google
-    url: https://www.google.com
-  - name: Wikipedia
-    url: https://en.wikipedia.org
-  - name: Hacker News
-    url: https://news.ycombinator.com
-  - name: Secret Site
-    url: $SECRET_SITE
+  - name: Website
+    slug: website
+    url: https://www.agiodigital.com/
+    expectedStatusCodes: [200]
+  - name: Public API
+    slug: api
+    url: https://api.agiodigital.com/
+    expectedStatusCodes: [200]
+  - name: AI Agents
+    slug: ai
+    url: https://ai.agiodigital.com/livez
+    expectedStatusCodes: [200]
+  - name: GraphQL API
+    slug: graphql
+    url: https://hasura.agiodigital.com/v1/version
+    expectedStatusCodes: [200]
+  - name: Developer Documentation
+    slug: docs
+    url: https://docs.agiodigital.com/
+    expectedStatusCodes: [200]
+  - name: PDF Generation
+    slug: pdf
+    url: https://agio-pdf-service-production-l2gf67l7ta-uc.a.run.app/health
+    expectedStatusCodes: [200]
 
 status-website:
-  # Add your custom domain name, or remove the `cname` line if you don't have a domain
-  # Uncomment the `baseUrl` line if you don't have a custom domain and add your repo name there
-  cname: demo.upptime.js.org
-  # baseUrl: /your-repo-name
-  logoUrl: https://raw.githubusercontent.com/upptime/upptime.js.org/master/static/img/icon.svg
-  name: Upptime
-  introTitle: "**Upptime** is the open-source uptime monitor and status page, powered entirely by GitHub."
-  introMessage: This is a sample status page which uses **real-time** data from our [GitHub repository](https://github.com/upptime/upptime). No server required — just GitHub Actions, Issues, and Pages. [**Get your own for free**](https://github.com/upptime/upptime)
+  baseUrl: /agio-status
+  name: Agio Status
+  introTitle: "**Agio service status**"
+  introMessage: "Current availability and incident updates for Agio services. Checks run outside Agio's infrastructure. Scheduled checks may be delayed; this page does not validate every application operation."
   navbar:
     - title: Status
       href: /
-    - title: GitHub
-      href: https://github.com/$OWNER/$REPO
-
-# Upptime also supports notifications, assigning issues, and more
-# See https://upptime.js.org/docs/configuration
+    - title: Incident History
+      href: https://github.com/agio-digital/agio-status/issues
