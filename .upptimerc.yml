@@ -31,11 +31,6 @@ sites:
     url: https://agio-pdf-service-production-l2gf67l7ta-uc.a.run.app/health
     expectedStatusCodes: [200]
 
-  - name: Monitoring Validation (intentional test)
-    slug: monitoring-validation
-    url: https://github.com/agio-digital/agio-status/__intentional_missing_probe__
-    expectedStatusCodes: [200]
-
 status-website:
   baseUrl: /agio-status
   name: Agio Status
