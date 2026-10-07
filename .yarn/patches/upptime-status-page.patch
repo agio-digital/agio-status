@@ -160,10 +160,10 @@ diff --git a/src/routes/_layout.svelte b/src/routes/_layout.svelte
 +  {#if !$fresh}
 +    <article class="degraded" role="status">
 +      <strong>Status updates delayed</strong>
-+      <p>Current availability is unknown. The last recorded results follow.</p>
++      <p>The latest checks are delayed. Please check back shortly.</p>
 +    </article>
 +  {/if}
-+  <p style="font-size:0.85rem;opacity:0.75">Last checked {new Date(data.checkedAt).toLocaleString(config.i18n.locale)} · Selected public routes only</p>
++  <p style="font-size:0.85rem;opacity:0.75">Last checked {new Date(data.checkedAt).toLocaleString(config.i18n.locale)}</p>
    <slot />
  </main>
 +
@@ -176,10 +176,9 @@ diff --git a/src/routes/_layout.svelte b/src/routes/_layout.svelte
 diff --git a/src/routes/rate-limit-exceeded.svelte b/src/routes/rate-limit-exceeded.svelte
 --- a/src/routes/rate-limit-exceeded.svelte
 +++ b/src/routes/rate-limit-exceeded.svelte
-@@ -1,88 +1,7 @@
- <script>
--  import { onMount } from "svelte";
--  import { goto } from "@sapper/app";
+@@ -2,87 +2,7 @@
+   import { onMount } from "svelte";
+   import { goto } from "@sapper/app";
    import config from "../data/config.json";
 -
 -  let token = "";
@@ -203,6 +202,7 @@ diff --git a/src/routes/rate-limit-exceeded.svelte b/src/routes/rate-limit-excee
 -    )
 -      localStorageToken = true;
 -  });
++  onMount(() => goto(config.path || "/", { replaceState: true }));
  </script>
 -
 -<svelte:head>
@@ -266,9 +266,7 @@ diff --git a/src/routes/rate-limit-exceeded.svelte b/src/routes/rate-limit-excee
 -  }
 -</style>
 +<svelte:head><title>Agio Status</title></svelte:head>
-+<h1>Status information</h1>
-+<p>This page uses published status data. No GitHub token is needed.</p>
-+<p><a href={config.path}>Return to service status</a></p>
++<p><a href={config.path || "/"}>View service status</a></p>
 diff --git a/src/utils/createOctokit.js b/src/utils/createOctokit.js
 --- a/src/utils/createOctokit.js
 +++ b/src/utils/createOctokit.js
