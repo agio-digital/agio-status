@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { fetchIncidents, readProbe, render } from './build-status.mjs';
+import { fetchIncidents, fetchMonitorRun, readProbe, render } from './build-status.mjs';
 
 const now = Date.parse('2026-10-07T04:00:00Z');
 const snapshot = {
@@ -16,6 +16,14 @@ test('public HTML needs no GitHub API, token or visitor request', () => {
 test('stale probes are not presented as current operational status', () => {
   assert.match(render({ ...snapshot, sites: [{ ...snapshot.sites[0], checkedAt: new Date(now - 21 * 60000).toISOString() }] }, now), /Status updates delayed/);
   assert.match(render(snapshot, now + 21 * 60000), /Status updates delayed/);
+  assert.match(render({ ...snapshot, monitorSucceeded: false }, now), /Status updates delayed/);
+});
+test('freshness uses completed monitoring runs, not history file change times', async () => {
+  const run = await fetchMonitorRun('agio-digital/agio-status', 'test-only', async () => ({ ok: true, json: async () => ({ workflow_runs: [
+    { path: '.github/workflows/publish-status.yml', head_branch: 'main', status: 'completed', updated_at: '2026-10-07T04:05:00Z', conclusion: 'success' },
+    { path: '.github/workflows/uptime.yml', head_branch: 'main', status: 'completed', updated_at: '2026-10-07T04:00:00Z', conclusion: 'failure' }
+  ] }) }));
+  assert.deepEqual(run, { checkedAt: '2026-10-07T04:00:00Z', succeeded: false });
 });
 test('incident titles and bodies cannot inject HTML', () => {
   const html = render({ ...snapshot, incidents: [{ number: 1, title: '<script>bad</script>', body: '<img src=x onerror=bad>', state: 'open', url: 'https://github.com/agio-digital/agio-status/issues/1' }] }, now);
