@@ -1,7 +1,9 @@
 owner: agio-digital
 repo: agio-status
 user-agent: agio-status
-secrets: []
+secrets:
+  - NOTIFICATION_SLACK
+  - NOTIFICATION_SLACK_WEBHOOK_URL
 assignees:
   - cwdx
 
