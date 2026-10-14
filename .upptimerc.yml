@@ -12,6 +12,10 @@ sites:
     slug: website
     url: https://www.agiodigital.com/
     expectedStatusCodes: [200]
+  - name: Website server
+    slug: website-server
+    url: https://www.agiodigital.com/api/status
+    expectedStatusCodes: [200]
   - name: Public API
     slug: api
     url: https://api.agiodigital.com/
