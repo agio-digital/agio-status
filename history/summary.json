@@ -18,6 +18,24 @@
     "dailyMinutesDown": {}
   },
   {
+    "name": "Website server",
+    "url": "https://www.agiodigital.com/api/status",
+    "icon": "https://icons.duckduckgo.com/ip3/www.agiodigital.com.ico",
+    "slug": "website-server",
+    "status": "up",
+    "uptime": "100.00%",
+    "uptimeDay": "100.00%",
+    "uptimeWeek": "100.00%",
+    "uptimeMonth": "100.00%",
+    "uptimeYear": "100.00%",
+    "time": 684,
+    "timeDay": 684,
+    "timeWeek": 684,
+    "timeMonth": 684,
+    "timeYear": 684,
+    "dailyMinutesDown": {}
+  },
+  {
     "name": "Public API",
     "url": "https://api.agiodigital.com/",
     "icon": "https://icons.duckduckgo.com/ip3/api.agiodigital.com.ico",
